@@ -146,6 +146,23 @@ defmodule AirportOpsWeb.RosterLive do
           </div>
         </div>
 
+        <%!-- Welcome Banner --%>
+        <div class="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl p-6 shadow-lg text-white mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-2">
+            <.icon name="hero-hand-raised" class="w-7 h-7" />
+            Welcome to AirportOps!
+          </h2>
+          <p class="mt-2 text-blue-50 text-sm">
+            This real-time Turnaround Shift Coordinator demonstrates the power of <strong>Elixir, Phoenix LiveView, and Ecto</strong>. 
+            There's no heavy SPA framework here—just HTML-over-WebSockets delivering a snappy, stateful experience.
+          </p>
+          <ul class="mt-3 text-sm list-disc list-inside space-y-1 text-blue-100 font-medium">
+            <li><strong>Try it out:</strong> Assign a new shift to Elena at Gate B12.</li>
+            <li><strong>The 12-Hour Rest Rule:</strong> Try booking a shift that violates the mandatory 12-hour rest period to see the smart backend validation (via Ecto Changesets) kick in.</li>
+            <li><strong>Real-time Sync:</strong> Open a second incognito browser window side-by-side to see PubSub sync the roster instantly.</li>
+          </ul>
+        </div>
+
         <%!-- Operational Stats KPI Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200 dark:border-zinc-800 shadow-xs">

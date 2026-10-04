@@ -1,5 +1,6 @@
 defmodule AirportOpsWeb.Router do
   use AirportOpsWeb, :router
+  import Plug.BasicAuth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,6 +9,12 @@ defmodule AirportOpsWeb.Router do
     plug :put_root_layout, html: {AirportOpsWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    
+    if Mix.env() != :test do
+      plug :basic_auth, 
+        username: System.get_env("AUTH_USER") || "admin", 
+        password: System.get_env("AUTH_PASS") || "demo123"
+    end
   end
 
   pipeline :api do
