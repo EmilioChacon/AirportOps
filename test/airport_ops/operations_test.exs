@@ -143,26 +143,69 @@ defmodule AirportOps.OperationsTest do
     end
 
     test "create_assignment/1 with valid data creates a assignment" do
-      valid_attrs = %{role: "some role", shift_start: ~U[2026-10-03 11:43:00Z], shift_end: ~U[2026-10-03 11:43:00Z]}
+      agent = agent_fixture()
+      flight = flight_fixture()
+
+      valid_attrs = %{
+        agent_id: agent.id,
+        flight_id: flight.id,
+        role: "some role",
+        shift_start: ~U[2026-10-03 11:43:00Z],
+        shift_end: ~U[2026-10-03 13:43:00Z]
+      }
 
       assert {:ok, %Assignment{} = assignment} = Operations.create_assignment(valid_attrs)
       assert assignment.role == "some role"
       assert assignment.shift_start == ~U[2026-10-03 11:43:00Z]
-      assert assignment.shift_end == ~U[2026-10-03 11:43:00Z]
+      assert assignment.shift_end == ~U[2026-10-03 13:43:00Z]
     end
 
     test "create_assignment/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Operations.create_assignment(@invalid_attrs)
     end
 
+    test "create_assignment/1 rejects assignment violating 12-hour rest rule" do
+      agent = agent_fixture()
+      flight1 = flight_fixture()
+      flight2 = flight_fixture()
+
+      # First shift: 08:00 to 12:00
+      assert {:ok, _} =
+               Operations.create_assignment(%{
+                 agent_id: agent.id,
+                 flight_id: flight1.id,
+                 role: "Marshaller",
+                 shift_start: ~U[2026-10-03 08:00:00Z],
+                 shift_end: ~U[2026-10-03 12:00:00Z]
+               })
+
+      # Second shift only 4 hours later (16:00): should fail!
+      assert {:error, changeset} =
+               Operations.create_assignment(%{
+                 agent_id: agent.id,
+                 flight_id: flight2.id,
+                 role: "Baggage Handler",
+                 shift_start: ~U[2026-10-03 16:00:00Z],
+                 shift_end: ~U[2026-10-03 20:00:00Z]
+               })
+
+      assert %{shift_start: ["violates mandatory 12-hour rest period between shifts"]} =
+               errors_on(changeset)
+    end
+
     test "update_assignment/2 with valid data updates the assignment" do
       assignment = assignment_fixture()
-      update_attrs = %{role: "some updated role", shift_start: ~U[2026-10-04 11:43:00Z], shift_end: ~U[2026-10-04 11:43:00Z]}
+
+      update_attrs = %{
+        role: "some updated role",
+        shift_start: ~U[2026-10-05 11:43:00Z],
+        shift_end: ~U[2026-10-05 13:43:00Z]
+      }
 
       assert {:ok, %Assignment{} = assignment} = Operations.update_assignment(assignment, update_attrs)
       assert assignment.role == "some updated role"
-      assert assignment.shift_start == ~U[2026-10-04 11:43:00Z]
-      assert assignment.shift_end == ~U[2026-10-04 11:43:00Z]
+      assert assignment.shift_start == ~U[2026-10-05 11:43:00Z]
+      assert assignment.shift_end == ~U[2026-10-05 13:43:00Z]
     end
 
     test "update_assignment/2 with invalid data returns error changeset" do

@@ -43,12 +43,17 @@ defmodule AirportOps.OperationsFixtures do
   Generate a assignment.
   """
   def assignment_fixture(attrs \\ %{}) do
+    agent = agent_fixture()
+    flight = flight_fixture()
+
     {:ok, assignment} =
       attrs
       |> Enum.into(%{
+        agent_id: agent.id,
+        flight_id: flight.id,
         role: "some role",
-        shift_end: ~U[2026-10-03 11:43:00Z],
-        shift_start: ~U[2026-10-03 11:43:00Z]
+        shift_start: ~U[2026-10-03 08:00:00Z],
+        shift_end: ~U[2026-10-03 10:00:00Z]
       })
       |> AirportOps.Operations.create_assignment()
 
