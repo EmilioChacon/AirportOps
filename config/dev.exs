@@ -1,14 +1,14 @@
 import Config
 
 # Configure your database
-config :airport_ops, AirportOps.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "airport_ops_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  config :airport_ops, AirportOps.Repo,
+    username: "emiliochacon",
+    socket_dir: "/run/postgresql",
+    port: 5433,
+    database: "airport_ops_dev",
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: 10
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
