@@ -64,11 +64,15 @@ defmodule AirportOps.Operations.Assignment do
           query
         end
 
-      if Repo.exists?(query) do
+      if conflicting_shift = Repo.one(limit(query, 1)) do
+        next_valid_start = DateTime.add(conflicting_shift.shift_end, 12, :hour)
+        formatted_valid = Calendar.strftime(next_valid_start, "%b %d, %H:%M")
+        formatted_conflict = Calendar.strftime(conflicting_shift.shift_end, "%b %d, %H:%M")
+
         add_error(
           changeset,
           :shift_start,
-          "violates mandatory 12-hour rest period between shifts"
+          "Conflicts with shift ending at #{formatted_conflict}. Minimum 12-hour rest requires this shift to start on or after #{formatted_valid}"
         )
       else
         changeset

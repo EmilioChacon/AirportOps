@@ -200,6 +200,28 @@ defmodule AirportOps.Operations do
 
   alias AirportOps.Operations.Assignment
 
+  @pubsub_topic "operations:assignments"
+
+  @doc """
+  Subscribes the calling process to assignment events.
+  """
+  def subscribe_assignments do
+    Phoenix.PubSub.subscribe(AirportOps.PubSub, @pubsub_topic)
+  end
+
+  @doc """
+  Returns the list of assignments with agent and flight preloaded.
+  """
+  def list_assignments_with_associations do
+    from(a in Assignment,
+      join: f in assoc(a, :flight),
+      join: ag in assoc(a, :agent),
+      preload: [flight: f, agent: ag],
+      order_by: [asc: f.scheduled_departure, asc: a.shift_start]
+    )
+    |> Repo.all()
+  end
+
   @doc """
   Returns the list of assignments.
 
@@ -245,6 +267,7 @@ defmodule AirportOps.Operations do
     %Assignment{}
     |> Assignment.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:assignment_created)
   end
 
   @doc """
@@ -263,6 +286,7 @@ defmodule AirportOps.Operations do
     assignment
     |> Assignment.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:assignment_updated)
   end
 
   @doc """
@@ -278,8 +302,18 @@ defmodule AirportOps.Operations do
 
   """
   def delete_assignment(%Assignment{} = assignment) do
-    Repo.delete(assignment)
+    assignment
+    |> Repo.delete()
+    |> broadcast(:assignment_deleted)
   end
+
+  defp broadcast({:ok, assignment}, event) do
+    payload = Repo.preload(assignment, [:agent, :flight], force: true)
+    Phoenix.PubSub.broadcast(AirportOps.PubSub, @pubsub_topic, {event, payload})
+    {:ok, assignment}
+  end
+
+  defp broadcast(error, _event), do: error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking assignment changes.

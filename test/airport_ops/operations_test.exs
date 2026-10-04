@@ -64,7 +64,15 @@ defmodule AirportOps.OperationsTest do
 
     import AirportOps.OperationsFixtures
 
-    @invalid_attrs %{status: nil, origin: nil, destination: nil, flight_number: nil, gate: nil, scheduled_arrival: nil, scheduled_departure: nil}
+    @invalid_attrs %{
+      status: nil,
+      origin: nil,
+      destination: nil,
+      flight_number: nil,
+      gate: nil,
+      scheduled_arrival: nil,
+      scheduled_departure: nil
+    }
 
     test "list_flights/0 returns all flights" do
       flight = flight_fixture()
@@ -77,7 +85,15 @@ defmodule AirportOps.OperationsTest do
     end
 
     test "create_flight/1 with valid data creates a flight" do
-      valid_attrs = %{status: "some status", origin: "some origin", destination: "some destination", flight_number: "some flight_number", gate: "some gate", scheduled_arrival: ~U[2026-10-03 11:31:00Z], scheduled_departure: ~U[2026-10-03 11:31:00Z]}
+      valid_attrs = %{
+        status: "some status",
+        origin: "some origin",
+        destination: "some destination",
+        flight_number: "some flight_number",
+        gate: "some gate",
+        scheduled_arrival: ~U[2026-10-03 11:31:00Z],
+        scheduled_departure: ~U[2026-10-03 11:31:00Z]
+      }
 
       assert {:ok, %Flight{} = flight} = Operations.create_flight(valid_attrs)
       assert flight.status == "some status"
@@ -95,7 +111,16 @@ defmodule AirportOps.OperationsTest do
 
     test "update_flight/2 with valid data updates the flight" do
       flight = flight_fixture()
-      update_attrs = %{status: "some updated status", origin: "some updated origin", destination: "some updated destination", flight_number: "some updated flight_number", gate: "some updated gate", scheduled_arrival: ~U[2026-10-04 11:31:00Z], scheduled_departure: ~U[2026-10-04 11:31:00Z]}
+
+      update_attrs = %{
+        status: "some updated status",
+        origin: "some updated origin",
+        destination: "some updated destination",
+        flight_number: "some updated flight_number",
+        gate: "some updated gate",
+        scheduled_arrival: ~U[2026-10-04 11:31:00Z],
+        scheduled_departure: ~U[2026-10-04 11:31:00Z]
+      }
 
       assert {:ok, %Flight{} = flight} = Operations.update_flight(flight, update_attrs)
       assert flight.status == "some updated status"
@@ -189,7 +214,7 @@ defmodule AirportOps.OperationsTest do
                  shift_end: ~U[2026-10-03 20:00:00Z]
                })
 
-      assert %{shift_start: ["violates mandatory 12-hour rest period between shifts"]} =
+      assert %{shift_start: ["Conflicts with shift ending at Oct 03, 12:00. Minimum 12-hour rest requires this shift to start on or after Oct 04, 00:00"]} =
                errors_on(changeset)
     end
 
@@ -202,7 +227,9 @@ defmodule AirportOps.OperationsTest do
         shift_end: ~U[2026-10-05 13:43:00Z]
       }
 
-      assert {:ok, %Assignment{} = assignment} = Operations.update_assignment(assignment, update_attrs)
+      assert {:ok, %Assignment{} = assignment} =
+               Operations.update_assignment(assignment, update_attrs)
+
       assert assignment.role == "some updated role"
       assert assignment.shift_start == ~U[2026-10-05 11:43:00Z]
       assert assignment.shift_end == ~U[2026-10-05 13:43:00Z]
@@ -210,7 +237,10 @@ defmodule AirportOps.OperationsTest do
 
     test "update_assignment/2 with invalid data returns error changeset" do
       assignment = assignment_fixture()
-      assert {:error, %Ecto.Changeset{}} = Operations.update_assignment(assignment, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Operations.update_assignment(assignment, @invalid_attrs)
+
       assert assignment == Operations.get_assignment!(assignment.id)
     end
 

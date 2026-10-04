@@ -17,7 +17,7 @@ defmodule AirportOpsWeb.Router do
   scope "/", AirportOpsWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", RosterLive, :index
   end
 
   # Other scopes may use custom stacks.

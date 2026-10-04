@@ -17,7 +17,23 @@ defmodule AirportOps.Operations.Flight do
   @doc false
   def changeset(flight, attrs) do
     flight
-    |> cast(attrs, [:flight_number, :origin, :destination, :gate, :scheduled_arrival, :scheduled_departure, :status])
-    |> validate_required([:flight_number, :origin, :destination, :gate, :scheduled_arrival, :scheduled_departure, :status])
+    |> cast(attrs, [
+      :flight_number,
+      :origin,
+      :destination,
+      :gate,
+      :scheduled_arrival,
+      :scheduled_departure,
+      :status
+    ])
+    |> validate_required([
+      :flight_number,
+      :origin,
+      :destination,
+      :gate,
+      :scheduled_arrival,
+      :scheduled_departure,
+      :status
+    ])
   end
 end
